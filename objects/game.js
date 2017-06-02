@@ -18,6 +18,7 @@ var items =
     ],
     harness: [
       {
+        name: "shirt",
         item: Armor.Shirt,
         dropChance: 0.05
       }
@@ -41,28 +42,23 @@ var items =
     // ]
   },
   // all the weapons
-  weapons: {
-    left: [
-      {
-        item: Weapon.Hand,
-        dropChance: 0
-      },
-      {
-        item: Weapon.HockeyStick,
-        dropChance: 0.45
-      }
-    ],
-    right: [
-      {
-        item: Weapon.Hand,
-        dropChance: 0
-      },
-      {
-        item: Weapon.Bat,
-        dropChance: 0.35
-      }
-    ]
-  },
+  weapons: [
+    {
+      name: "hand",
+      item: Weapon.Hand,
+      dropChance: 0
+    },
+    {
+      name: "hockey stick"
+      item: Weapon.HockeyStick,
+      dropChance: 0.45
+    },
+    {
+      name: "bat",
+      item: Weapon.Bat,
+      dropChance: 0.3
+    }
+  ],
   // shield
   // shield: [
   //
@@ -70,12 +66,14 @@ var items =
   // all the different foods
   food: [
     {
+      name: "donut",
       item: Food.Donut,
-      dropChance: 0.1
+      dropChance: 0.3
     },
     {
+      name: "pizza",
       item: Food.Pizza,
-      dropChance: 0.2
+      dropChance: 0.5
     }
   ]
 };

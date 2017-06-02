@@ -1,8 +1,8 @@
 var Game = require("./game");
 // player
-function Player(id, name, xp, lvl, hp, maxHp, equipedArmor, equipedWeapons, maxItems, items) {
+function Player(id, name, xp, lvl, hp, maxHp, equipedArmor, equipedWeapon, maxItems, items) {
   // player id from discord user id
-  this.id = id || "noId";
+  this.id = id || "0";
   this.name = name || "unnamed";
   this.xp = xp || 0;
   this.lvl = lvl || 0;
@@ -14,10 +14,7 @@ function Player(id, name, xp, lvl, hp, maxHp, equipedArmor, equipedWeapons, maxI
     gloves: null
   };
   // beginners Weapons
-  this.equipedWeapons = equipedWeapons || {
-    left: new Game.items.weapons.left[0].item(this.lvl),
-    right: new Game.items.weapons.left[0].item(this.lvl)
-  };
+  this.equipedWeapons = equipedWeapon || new Game.items.weapons.left[0].item(this.lvl);
   // the items of the player
   this.items = items || [];
   // the max amount of items a player can have (inventory)

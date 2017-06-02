@@ -1,3 +1,5 @@
+// doesn't work anymore
+
 var Enemy = require("./enemy");
 var Player = require("./player");
 var Game = require("./game");
