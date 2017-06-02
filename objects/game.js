@@ -83,24 +83,35 @@ var items =
 // example
 // var item = create("armor", "shirt", "harness");
 // console.log(new item(5));
-function create(itemType, itemName, armorType) {
+function create(itemType, itemName, armorType, properties) {
+  var output;
   if (itemType === "armor") {
     if (armorType === "boots") {
-      return items.armor.boots.find(armor => armor.name === itemName).item;
+      output = items.armor.boots.find(armor => armor.name === itemName).item;
     } else if (armorType === "pants") {
-      return items.armor.pants.find(armor => armor.name === itemName).item;
+      output = items.armor.pants.find(armor => armor.name === itemName).item;
     } else if (armorType === "harness") {
-      return items.armor.harness.find(armor => armor.name === itemName).item;
+      output = items.armor.harness.find(armor => armor.name === itemName).item;
     } else if (armorType === "helmet") {
-      return items.armor.helmet.find(armor => armor.name === itemName).item;
+      output = items.armor.helmet.find(armor => armor.name === itemName).item;
     } else if (armorType === "glove") {
-      return items.armor.glove.find(armor => armor.name === itemName).item;
+      output = items.armor.glove.find(armor => armor.name === itemName).item;
     }
   } else if (itemType === "weapon" || itemType === "weapons") {
-    return items.weapon.find(weapon => weapon.name === itemName).item;
+    output = items.weapon.find(weapon => weapon.name === itemName).item;
   } else if (itemType === "food") {
-    return items.food.find(food => food.name === itemName).item;
+    output = items.food.find(food => food.name === itemName).item;
   }
+  if (typeof properties == "object") {
+    if (itemType === "armor") {
+      output = new output(properties.targetLvl, properties.defense, true);
+    } else if (itemType === "weapon") {
+      output = new output(properties.targetLvl, properties.attackPower, true);
+    } else if (itemType === "food") {
+      output = new output(properties.targetLvl, properties.hp, true);
+    }
+  }
+  return output;
 }
 
 // export so that the main file can require it all at once

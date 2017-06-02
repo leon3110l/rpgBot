@@ -14,7 +14,7 @@ function Player(id, name, xp, lvl, hp, defense, attackPower, maxHp, equipedArmor
     gloves: null
   };
   // beginners Weapons
-  this.equipedWeapons = equipedWeapon || new Game.items.weapons.left[0].item(this.lvl);
+  this.equipedWeapons = equipedWeapon || new Game.items.weapon[0].item(this.lvl);
   // the items of the player
   this.items = items || [];
   // the max amount of items a player can have (inventory)
