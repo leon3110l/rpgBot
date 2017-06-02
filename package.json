@@ -1,0 +1,27 @@
+{
+  "name": "rpgbot",
+  "version": "1.0.0",
+  "description": "an discord rpg bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leon-4A6C/rpgBot.git"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "rpg"
+  ],
+  "author": "leon in 't Veld",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/leon-4A6C/rpgBot/issues"
+  },
+  "homepage": "https://github.com/leon-4A6C/rpgBot#readme",
+  "dependencies": {
+    "discord.js": "^11.1.0"
+  }
+}
