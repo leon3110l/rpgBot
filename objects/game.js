@@ -11,7 +11,7 @@ var items =
   // all the armor pieces
   armor: {
     boots: [
-      // put armor classes here
+
     ],
     pants: [
 
@@ -79,7 +79,7 @@ var items =
 };
 
 
-// returns the object you need to initialize it when you get it
+// returns the object, you need to initialize it when you get it
 // example
 // var item = create("armor", "shirt", "harness");
 // console.log(new item(5));

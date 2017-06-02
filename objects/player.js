@@ -1,6 +1,6 @@
 var Game = require("./game");
 // player
-function Player(id, name, xp, lvl, hp, maxHp, equipedArmor, equipedWeapon, maxItems, items) {
+function Player(id, name, xp, lvl, hp, defense, attackPower, maxHp, equipedArmor, equipedWeapon, maxItems, items) {
   // player id from discord user id
   this.id = id || "0";
   this.name = name || "unnamed";
@@ -23,30 +23,14 @@ function Player(id, name, xp, lvl, hp, maxHp, equipedArmor, equipedWeapon, maxIt
   this.maxHp = maxHp || 50;
   // hp from the player it self
   this.hp = hp || this.maxHp;
+  // the defense points
+  this.defense = defense || 0;
+  // the attack points
+  this.attackPower = attackPower || 0;
 }
 
 Player.prototype = {
-  // weapon left(0) or right(1)
-  // attack returns the opponent's new health
-  attack: function(opponent, weapon, actionIndex) {
-    if (weapon === 0) {
-      weapon = "left";
-    } else if(weapon === 1) {
-      weapon = "right";
-    }
-    var newOpponentHp = opponent.dmg(this.equipedWeapons[weapon].attackDmg(actionIndex));
-    return newOpponentHp
-  },
-  eat: function(food) {
-    // add it to the hp
-    this.hp += food.hp;
-    // cap it to the max hp
-    if (this.hp > this.maxHp) {
-      this.hp = this.maxHp;
-    }
-    // remove item from items because he ate it
-    this.items.splice(this.items.indexOf(food), 1);
-  },
+  // TODO: attack function, eat function
   dropItem: function(item) {
     // drop the item
     this.items.splice(this.items.indexOf(item), 1);
@@ -72,6 +56,7 @@ Player.prototype = {
     }
     // equip armor, boots, pants, harness, helmet or gloves
     this.equipedArmor[slot] = armor;
+    // TODO: add to the defense points
   },
   // equips weapon in a slot(left(0) or right(1))
   equipWeapon: function(weapon, slot) {
@@ -89,6 +74,7 @@ Player.prototype = {
     this.equipedWeapons[slot] = weapon;
     // remove item from items/inventory
     this.items.splice(this.items.indexOf(weapon), 1);
+    // TODO: add to the attackPower of the player
   },
   // take damage, returns new hp from this player
   dmg: function(dmg) {
@@ -96,16 +82,12 @@ Player.prototype = {
     if (this.hp < 0) {
       this.hp = 0;
     }
-    return this.hp
+    return this.hp // returns new hp of the player
+    // TODO: account for defense points and attack points of the enemy/opponent
   },
-  // in slot left or right
-  getActions: function(slot) {
-    if (slot === 0) {
-      slot = "left";
-    } else if (slot === 1) {
-      slot = "right";
-    }
-    return this.equipedWeapons[slot].actions;
+  // returns the actions of the equiped weapon
+  getWeaponActions: function() {
+    return this.equipedWeapon.actions;
   },
   // adds xp and lvls up if needed from enemy or an int
   // returns an object with lvl if it lvled up and new xp
@@ -129,8 +111,7 @@ Player.prototype = {
   },
   // resets all the weapons actions
   resetWeaponActions: function() {
-    this.equipedWeapons.left.resetActions();
-    this.equipedWeapons.right.resetActions();
+    this.equipedWeapon.resetActions();
   },
   // adds an item to the player in the inventory/items array
   addItem: function(item) {
