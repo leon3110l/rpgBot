@@ -1,7 +1,7 @@
 {
   "discord": "DISCORD_TOKEN",
   "DBhost": "localhost",
-  "DBusername": "discord",
-  "DBpassword": "discord",
-  "DBname": "DiscordBot"
+  "DBusername": "rpgBot",
+  "DBpassword": "rpgBot",
+  "DBname": "rpgBot"
 }
