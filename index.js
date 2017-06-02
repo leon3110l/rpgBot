@@ -12,7 +12,7 @@ var pool = mysql.createPool({
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.username}!`);
-  syncDB();
+  syncDB(); // update all the members and guilds
 });
 
 client.on('message', msg => {
@@ -72,8 +72,19 @@ function syncDB() {
                           console.log(error);
                           return
                         }
+                        // if its at the last user and the last guild
+                        if(member.id === members[members.length-1].id && guild.id === guilds[guilds.length-1].id) {
+                          // destroy connection to DB
+                          conn.destroy();
+                        }
                       });
                     });
+                  } else {
+                    // if its at the last user and the last guild
+                    if(member.id === members[members.length-1].id && guild.id === guilds[guilds.length-1].id) {
+                      // destroy connection to DB
+                      conn.destroy();
+                    }
                   }
                 });
               }(members[i], guild));
