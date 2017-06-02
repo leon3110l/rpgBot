@@ -48,7 +48,7 @@ Weapon.prototype.resetActions = function() {
   }
 }
 
-function Hand(targetLvl) {
+function Hand(targetLvl, attackPower, exact) {
   this.name = "hand";
   this.type = "weapon";
   this.maxLvl = 5;
@@ -89,7 +89,7 @@ function Hand(targetLvl) {
 // inherit Weapon stuff
 Hand.prototype = Object.create(Weapon.prototype);
 
-function Bat(targetLvl) {
+function Bat(targetLvl, attackPower, exact) {
   this.name = "bat";
   this.type = "weapon";
   this.maxLvl = 5;
@@ -130,7 +130,7 @@ function Bat(targetLvl) {
 Bat.prototype = Object.create(Weapon.prototype);
 
 
-function HockeyStick(targetLvl) {
+function HockeyStick(targetLvl, attackPower, exact) {
   this.name = "hockey stick";
   this.type = "weapon";
   this.maxLvl = 5;
