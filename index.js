@@ -2,6 +2,15 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 const tokens = require("./tokens");
 const mysql = require("mysql");
+
+// game components
+const game = require("./objects/game.js");
+const Player = require("./objects/player.js");
+const Enemy = require("./objects/enemy.js");
+
+console.log(game);
+
+// create mysql pool
 var pool = mysql.createPool({
   connectionLimit: 50, // to be on the safe side
   host: tokens.DBhost || "localhost",
