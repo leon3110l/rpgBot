@@ -31,6 +31,33 @@ client.on('message', msg => {
 
 client.login(tokens.discord);
 
+getPlayer("253555759038726145", player => {
+  console.log(player);
+  player.addXp(5);
+  setPlayer(player);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // gets a user from the database and adds all the items
 // example/test
 // getPlayer("253555759038726145", (player) => {
@@ -38,6 +65,10 @@ client.login(tokens.discord);
 // });
 function getPlayer(userId, callback) {
   pool.getConnection((err, conn) => {
+    if (err) {
+      console.log(err);
+      return
+    }
     conn.query("SELECT item.id, item.type, item.lvl AS targetLvl, item.hp, item.defense, item.attackPower, item.armorType, item.name FROM user_has_item LEFT JOIN item ON item.id = item_id WHERE user_id = ?", [userId], (error, results, fields) => {
       if (error) {
         console.log(error);
@@ -73,6 +104,7 @@ function getPlayer(userId, callback) {
           }
           // returns a player with all of those things
           var player = new Player(userId, results[0].username, results[0].userXp, results[0].userLvl, results[0].userHp, results[0].userDefense, results[0].userAttackPower, results[0].userMaxHp, armor, weapon, results[0].userMaxItems, items);
+          conn.destroy(); // remove conn from pool to prevent crashes and to make an connection available
           callback(player);
         });
       });
@@ -82,7 +114,129 @@ function getPlayer(userId, callback) {
 
 // updates the player on the database
 function setPlayer(player) {
+  pool.getConnection((err, conn) => {
+    if (err) {
+      console.log(err);
+      return
+    }
 
+    // add user and weapon to the database
+    conn.query("SELECT weapon_id FROM user WHERE user.id = ?", [player.id], (error, results, fields) => {
+      if (error) {
+        console.log(error);
+        conn.destroy();
+        return
+      }
+      if (results[0]) {
+        weaponId = results[0].weapon_id;
+      } else {
+        weaponId = null;
+      }
+      conn.query("UPDATE weapon SET lvl = ?, attackPower = ?, name = ? WHERE id = ?", [player.equipedWeapon.lvl, player.equipedWeapon.attackPower, player.equipedWeapon.name, weaponId], (error, results, fields) => {
+        if (error) {
+          console.log(error);
+          conn.destroy();
+          return
+        }
+        conn.query("UPDATE user SET lvl = ?, xp = ?, hp = ?, maxHp = ?, maxItems = ?, attackPower = ?, defense = ?, weapon_id = ? WHERE user.id = ?", [player.lvl, player.xp, player.hp, player.maxHp, player.maxItems, player.attackPower, player.defense, weaponId, player.id], (error, results, fields) => {
+          if (error) {
+            console.log(error);
+            conn.destroy();
+            return
+          }
+        });
+      });
+    });
+
+    // add items to the database
+    conn.query("SELECT * FROM user_has_item WHERE user_id = ?", [player.id], (error, results, fields) => {
+      if (error) {
+        console.log(error);
+        conn.destroy();
+        return
+      }
+      // reuse old items in the database for optimal use, because of this I don't need to add them to user_has_item
+      for (var i = 0; i < results.length; i++) {
+        (function(itemId, item){
+          conn.query("UPDATE item SET type = ?, lvl = ?, hp = ?, defense = ?, attackPower = ?, armorType = ?, name = ? WHERE id = ?", [item.type, item.lvl, item.hp, item.defense, item.attackPower, item.armorType, item.name, itemId], (error, results, fields) => {
+            if (error) {
+              console.log(error);
+              conn.destroy();
+              return
+            }
+          });
+        }(results[i].item_id, player.items[i]));
+      }
+      // add items if needed
+      var offset = results.length-1;
+      if (offset < 0) {
+        offset = 0;
+      }
+      for (var i = offset; i < player.items.length; i++) {
+        console.log(i);
+        (function(item) {
+          conn.query("INSERT INTO item(type, lvl, hp, defense, attackPower, armorType, name) VALUES(?, ?, ?, ?, ?, ?, ?)", [item.type, item.lvl, item.hp, item.defense, item.attackPower, item.armorType, item.name], (error, results, fields) => {
+            if (error) {
+              console.log(error);
+              conn.destroy();
+              return
+            }
+            conn.query("INSERT INTO user_has_item(user_id, item_id) VALUES (?, ?)", [player.id, results.insertId], (error, results, fields) => {
+              if (error) {
+                console.log(error);
+                conn.destroy();
+                return
+              }
+            });
+          });
+        }(player.items[i]));
+      }
+    });
+
+    // add armor to the database
+    conn.query("SELECT * FROM user_has_armor INNER JOIN armor ON armor_id = armor.id WHERE user_id = ?", [player.id], (error, results, fields) => {
+      if (error) {
+        console.log(error);
+        conn.destroy();
+        return
+      }
+      // reuse old items in the database for optimal use, because of this I don't need to add them to user_has_item
+      for (var i = 0; i < results.length; i++) {
+        (function(armorId, armor){
+          conn.query("UPDATE armor SET lvl = ?, defense = ?, name = ? WHERE id = ?", [armor.lvl, armor.defense, armor.name, armorId], (error, results, fields) => {
+            if (error) {
+              console.log(error);
+              conn.destroy();
+              return
+            }
+          });
+        }(results[i].armor_id, player.equipedArmor[results[i].armorType]));
+      }
+      // add items if needed
+      for (var armor in player.equipedArmor) {
+        // if there is no armor of that type already and he has it equiped
+        if (player.equipedArmor.hasOwnProperty(armor) && player.equipedArmor[armor] && !results.find(result => result.armorType === armor)) {
+          // add armor to the database
+          (function(armor) {
+            conn.query("INSERT INTO item(lvl, defense, name, armorType) VALUES(?, ?, ?, ?)", [armor.lvl, armor.defense, armor.name, armor.armorType], (error, results, fields) => {
+              if (error) {
+                console.log(error);
+                conn.destroy();
+                return
+              }
+              conn.query("INSERT INTO user_has_armor(user_id, armor_id) VALUES (?, ?)", [player.id, results.insertId], (error, results, fields) => {
+                if (error) {
+                  console.log(error);
+                  conn.destroy();
+                  return
+                }
+              });
+            });
+          }(player.equipedArmor[armor]));
+        }
+      }
+    });
+  });
 }
 
 // adds new members and new guilds
