@@ -33,11 +33,12 @@ client.login(tokens.discord);
 
 getPlayer("253555759038726145", player => {
   console.log(player);
-  player.addXp(5);
   setPlayer(player);
 });
 
-
+setInterval(() => {
+  console.log(pool._allConnections.length);
+}, 200);
 
 
 
@@ -76,7 +77,6 @@ function getPlayer(userId, callback) {
         return
       }
       var items = [];
-      console.log(results);
       for (var i = 0; i < results.length; i++) {
         items.push(game.create(results[i].type, results[i].name, results[i].armorType, results[i])); //should create the item and push it in the items
       }
@@ -114,12 +114,8 @@ function getPlayer(userId, callback) {
 
 // updates the player on the database
 function setPlayer(player) {
+  // weapon and user connection
   pool.getConnection((err, conn) => {
-    if (err) {
-      console.log(err);
-      return
-    }
-
     // add user and weapon to the database
     conn.query("SELECT weapon_id FROM user WHERE user.id = ?", [player.id], (error, results, fields) => {
       if (error) {
@@ -132,28 +128,52 @@ function setPlayer(player) {
       } else {
         weaponId = null;
       }
-      conn.query("UPDATE weapon SET lvl = ?, attackPower = ?, name = ? WHERE id = ?", [player.equipedWeapon.lvl, player.equipedWeapon.attackPower, player.equipedWeapon.name, weaponId], (error, results, fields) => {
-        if (error) {
-          console.log(error);
-          conn.destroy();
-          return
-        }
+      // update weapon if there is a weapon
+      if (weaponId) {
+        conn.query("UPDATE weapon SET lvl = ?, attackPower = ?, name = ? WHERE id = ?", [player.equipedWeapon.lvl, player.equipedWeapon.attackPower, player.equipedWeapon.name, weaponId], (error, results, fields) => {
+          if (error) {
+            console.log(error);
+            conn.destroy();
+            return
+          }
+          updateUser();
+        });
+      }
+      if (weaponId === null) {
+        conn.query("INSERT INTO weapon(lvl, attackPower, name) VALUES (?, ?, ?)", [player.equipedWeapon.lvl, player.equipedWeapon.attackPower, player.equipedWeapon.name], (error, results, fields) => {
+          if (error) {
+            console.log(error);
+            conn.destroy();
+            return
+          }
+          weaponId = results.insertId;
+          updateUser();
+        });
+      }
+      function updateUser() {
         conn.query("UPDATE user SET lvl = ?, xp = ?, hp = ?, maxHp = ?, maxItems = ?, attackPower = ?, defense = ?, weapon_id = ? WHERE user.id = ?", [player.lvl, player.xp, player.hp, player.maxHp, player.maxItems, player.attackPower, player.defense, weaponId, player.id], (error, results, fields) => {
           if (error) {
             console.log(error);
             conn.destroy();
             return
           }
+          conn.destroy();
         });
-      });
+      }
     });
+  });
 
+  // item connection
+  pool.getConnection((err, conn) => {
     // add items to the database
     conn.query("SELECT * FROM user_has_item WHERE user_id = ?", [player.id], (error, results, fields) => {
       if (error) {
         console.log(error);
         conn.destroy();
         return
+      }
+      if (player.items.length === 0 && results.length === 0) {
+        conn.destroy();
       }
       // reuse old items in the database for optimal use, because of this I don't need to add them to user_has_item
       for (var i = 0; i < results.length; i++) {
@@ -164,6 +184,9 @@ function setPlayer(player) {
               conn.destroy();
               return
             }
+            if (item === player.items[player.items.length-1]) {
+              conn.destroy();
+            }
           });
         }(results[i].item_id, player.items[i]));
       }
@@ -173,7 +196,6 @@ function setPlayer(player) {
         offset = 0;
       }
       for (var i = offset; i < player.items.length; i++) {
-        console.log(i);
         (function(item) {
           conn.query("INSERT INTO item(type, lvl, hp, defense, attackPower, armorType, name) VALUES(?, ?, ?, ?, ?, ?, ?)", [item.type, item.lvl, item.hp, item.defense, item.attackPower, item.armorType, item.name], (error, results, fields) => {
             if (error) {
@@ -187,16 +209,33 @@ function setPlayer(player) {
                 conn.destroy();
                 return
               }
+              if (item === player.items[player.items.length-1]) {
+                conn.destroy();
+              }
             });
           });
         }(player.items[i]));
       }
     });
-
+  });
+  // armor connection
+  pool.getConnection((err, conn) => {
     // add armor to the database
     conn.query("SELECT * FROM user_has_armor INNER JOIN armor ON armor_id = armor.id WHERE user_id = ?", [player.id], (error, results, fields) => {
       if (error) {
         console.log(error);
+        conn.destroy();
+        return
+      }
+      var found = false;
+      for (var armor in player.equipedArmor) {
+        if (player.equipedArmor.hasOwnProperty(armor)) {
+          if (player.equipedArmor[armor] && results.length === 0) {
+            found = true;
+          }
+        }
+      }
+      if (!found) {
         conn.destroy();
         return
       }
@@ -208,6 +247,11 @@ function setPlayer(player) {
               console.log(error);
               conn.destroy();
               return
+            }
+            // if armor is the last armor piece, destroy connection
+            var armorArray = player.equipedArmor.keys().map(key => obj[key]);
+            if (armor === armorArray[armorArray.length-1]) {
+              conn.destroy();
             }
           });
         }(results[i].armor_id, player.equipedArmor[results[i].armorType]));
@@ -229,6 +273,11 @@ function setPlayer(player) {
                   console.log(error);
                   conn.destroy();
                   return
+                }
+                // if armor is the last armor piece, destroy connection
+                var armorArray = player.equipedArmor.keys().map(key => obj[key]);
+                if (armor === armorArray[armorArray.length-1]) {
+                  conn.destroy();
                 }
               });
             });

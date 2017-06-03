@@ -36,42 +36,23 @@ Player.prototype = {
     this.items.splice(this.items.indexOf(item), 1);
   },
   // equips armor in a slot(boots(0), pants(1), harness(2), helmet(3) or gloves(4))
-  equipArmor: function(armor, slot) {
-    switch (slot) {
-      case 0:
-        slot = "boots";
-        break;
-      case 1:
-        slot = "pants";
-        break;
-      case 2:
-        slot = "harness";
-        break;
-      case 3:
-        slot = "helmet";
-        break;
-      case 4:
-        slot = "gloves";
-        break;
-    }
+  equipArmor: function(armor) {
+
     // equip armor, boots, pants, harness, helmet or gloves
-    this.equipedArmor[slot] = armor;
-    // TODO: add to the defense points
+    this.equipedArmor[armor.armorType] = armor;
+    // remove armor from items array/inventory
+    this.items.splice(this.items.indexOf(armor), 1);
+    // TODO: add to the defense points of the player
   },
   // equips weapon in a slot(left(0) or right(1))
-  equipWeapon: function(weapon, slot) {
-    if (slot === 0) {
-      slot = "left";
-    } else if (slot === 1) {
-      slot = "right";
-    }
+  equipWeapon: function(weapon) {
     // if there is an item equiped at that slot return the item to the items
-    if (this.equipedWeapons[slot]) {
+    if (this.equipedWeapon) {
       // push it to the items
-      this.items.push(this.equipedWeapons[slot]);
+      this.items.push(this.equipedWeapons);
     }
     // equip weapon
-    this.equipedWeapons[slot] = weapon;
+    this.equipedWeapon = weapon;
     // remove item from items/inventory
     this.items.splice(this.items.indexOf(weapon), 1);
     // TODO: add to the attackPower of the player
