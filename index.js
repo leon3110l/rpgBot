@@ -65,14 +65,16 @@ client.on('message', msg => {
 client.login(tokens.discord);
 
 function battleHandler(battle, msg) {
-  percentageBarOptions = {empty: ":broken_heart:", full: ":heart:"}; // the options all the percentageBar calls should have
-  battles.splice(battles.indexOf(battle), 1);
+  var percentageBarOptions = {empty: ":broken_heart:", full: ":heart:"}; // the options all the percentageBar calls should have
   switch (battle.status) {
     case 0: // start
       start();
       break;
     case 1: //attack
       attack();
+      break;
+    case 2: //item
+      item();
       break;
     // 999 run/escape/stop
   }
@@ -97,7 +99,7 @@ function battleHandler(battle, msg) {
         msg.reply("you ran away");
         battle.status = 999;
       }
-      msg.content = "battle";
+      msg.content = "battle"; // added to prevent a loop
       battleHandler(battle, msg);
     }
   }
@@ -118,15 +120,42 @@ function battleHandler(battle, msg) {
         }
       }
       if (msg.content === "battle "+actions.length) {
-        battle.status = 0;
+        battle.status = 0; // go back to the start
       }
-      msg.content = "battle";
+      msg.content = "battle"; // added to prevent a loop
       battleHandler(battle, msg);
     }
   }
+
+  function item() {
+    var items = battle.player.items;
+    if (msg.content === "battle") {
+      var reply = "inventory: \n";
+      for (var i = 0; i < items.length; i++) {
+        reply += i+". " + items[i].name + "\t\t\t";
+        if ((i % 3) === 0) {
+          reply += "\n";
+        }
+      }
+      reply += items.length + ". back";
+      msg.reply(reply);
+    } else {
+      for (var i = 0; i < items.length; i++) {
+        if (msg.content === "battle "+i) {
+          // TODO: use item
+        }
+      }
+      if (msg.content === "battle "+items.length) {
+        battle.status = 0; // go back to the start
+      }
+      msg.content = "battle"; // added to prevent a loop
+      battleHandler(battle, msg);
+    }
+  }
+  battles.splice(battles.indexOf(battle), 1); // remove battle from battles array
   // statuscode 999 is escape code(remove from battles array and update player)
   if (battle.status != 999) {
-    battles.push(battle);
+    battles.push(battle); // push the updated battle to the battles array
   } else {
     setPlayer(battle.player);
   }
