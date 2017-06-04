@@ -3,5 +3,6 @@
   "DBhost": "localhost",
   "DBusername": "rpgBot",
   "DBpassword": "rpgBot",
-  "DBname": "rpgBot"
+  "DBname": "rpgBot",
+  "prefix": "$"
 }

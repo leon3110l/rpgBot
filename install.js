@@ -81,31 +81,36 @@ function createToken() {
 
   prompt("paste your discord token\n", (input) => {
     data.discord = input;
-    prompt("the defaults are\nDBhost: "+data.DBhost+"\nDBusername: "+data.DBusername+"\nDBpassword: "+data.DBpassword+"\ndo you want to change your DB login? y/n ", (input) => {
-      if (input.toLowerCase() == "n") {
-        writeTokens();
-      } else if (input.toLowerCase() == "y") {
-        prompt("DB host (localhost)\n", (input) => {
-          if (input) {
-            data.DBhost = input;
-          }
-          prompt("DB username (discord)\n", (input) => {
+    prompt("what prefix would you like, default: $ ($)", (input) => {
+      if (input) {
+        data.prefix = input;
+      }
+      prompt("the defaults are\nDBhost: "+data.DBhost+"\nDBusername: "+data.DBusername+"\nDBpassword: "+data.DBpassword+"\ndo you want to change your DB login? y/n ", (input) => {
+        if (input.toLowerCase() == "n") {
+          writeTokens();
+        } else if (input.toLowerCase() == "y") {
+          prompt("DB host (localhost)\n", (input) => {
             if (input) {
-              data.DBusername = input;
+              data.DBhost = input;
             }
-            prompt("DB password (discord)\n", (input) => {
+            prompt("DB username (discord)\n", (input) => {
               if (input) {
-                data.DBpassword = input;
+                data.DBusername = input;
               }
-              writeTokens();
+              prompt("DB password (discord)\n", (input) => {
+                if (input) {
+                  data.DBpassword = input;
+                }
+                writeTokens();
+              });
             });
           });
-        });
-      } else {
-        console.log("you didn't press the correct key.");
-        createToken();
-        return
-      }
+        } else {
+          console.log("you didn't press the correct key.");
+          createToken();
+          return
+        }
+      });
     });
   });
   function writeTokens() {

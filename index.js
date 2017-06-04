@@ -1,6 +1,7 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const tokens = require("./tokens");
+const prefix = tokens.prefix;
 const mysql = require("mysql");
 
 // game components
@@ -24,21 +25,10 @@ client.on('ready', () => {
 });
 
 client.on('message', msg => {
-  if (msg.content === 'ping') {
-    msg.reply('Pong!');
-  }
+
 });
 
 client.login(tokens.discord);
-
-getPlayer("253555759038726145", player => {
-  console.log(player);
-  setPlayer(player);
-});
-
-setInterval(() => {
-  console.log(pool._allConnections.length);
-}, 200);
 
 
 
