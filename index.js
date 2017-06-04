@@ -31,7 +31,7 @@ client.on('message', msg => {
     return
   }
   msg.content = msg.content.substring(1, msg.content.length).trim(); // remove the prefix from the msg.content and trim it in case the user used a space
-
+  // write code after this
   if (startsWith(msg.content, "battle")) {
     // find the battle
     var battle = battles.find(x => x.player.id === msg.author.id);
@@ -78,7 +78,7 @@ function battleHandler(battle, msg) {
       break;
     // 999 run/escape/stop
   }
-
+  // the start menu
   function start() {
     if (msg.content === "battle") {
       var reply = "\n" + battle.player.name + ":\t\t";
@@ -103,7 +103,7 @@ function battleHandler(battle, msg) {
       battleHandler(battle, msg);
     }
   }
-
+  // the attack menu
   function attack() {
     var actions = battle.player.getWeaponActions();
     if (msg.content === "battle") {
@@ -126,7 +126,7 @@ function battleHandler(battle, msg) {
       battleHandler(battle, msg);
     }
   }
-
+  // the item menu
   function item() {
     var items = battle.player.items;
     if (msg.content === "battle") {
@@ -157,9 +157,8 @@ function battleHandler(battle, msg) {
   if (battle.status != 999) {
     battles.push(battle); // push the updated battle to the battles array
   } else {
-    setPlayer(battle.player);
+    setPlayer(battle.player); // upload player to the DB
   }
-  console.log("amount of battles: "+battles.length);
 }
 
 
