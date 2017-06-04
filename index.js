@@ -1,3 +1,4 @@
+require("console-stamp")(console); // display the date and time of the console.logs, for easier debugging
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const tokens = require("./tokens");
@@ -25,12 +26,107 @@ client.on('ready', () => {
 });
 
 client.on('message', msg => {
+  // check if the prefix is used if not return(don't go further) and if it is a bot return
+  if (msg.content.indexOf(prefix) != 0 || !client.user.bot) {
+    return
+  }
+  msg.content = msg.content.substring(1, msg.content.length).trim(); // remove the prefix from the msg.content and trim it in case the user used a space
 
+  if (startsWith(msg.content, "battle")) {
+    // find the battle
+    var battle = battles.find(x => x.player.id === msg.author.id);
+    // if there is no battle start a new one
+    if (!battle) {
+      // create a battle
+      getPlayer(msg.author.id, player => {
+        battle = {
+          player: player,
+          enemy: new Enemy(null, player.lvl),
+          startTime: new Date(),
+          status: 0
+        };
+        battles.push(battle);
+        msg.reply("battle started!");
+        battleHandler(battle, msg);
+      });
+    } else {
+      battleHandler(battle, msg);
+    }
+  }
+  if (msg.content === "invite") {
+    client.generateInvite()
+      .then(link => {
+        msg.channel.send("invite link: "+link);
+      });
+  }
 });
 
 client.login(tokens.discord);
 
+function battleHandler(battle, msg) {
+  percentageBarOptions = {empty: ":broken_heart:", full: ":heart:"}; // the options all the percentageBar calls should have
+  battles.splice(battles.indexOf(battle), 1);
+  switch (battle.status) {
+    case 0: // start
+      start();
+      break;
+    case 1: //attack
+      attack();
+      break;
+    // 999 run/escape/stop
+  }
 
+  function start() {
+    var reply = "";
+    if (msg.content === "battle") {
+      reply = "\n" + battle.player.name + ":\t\t";
+      reply += battle.player.hp + "/" + battle.player.maxHp + " HP " + percentageBar((battle.player.hp/battle.player.maxHp), 14, percentageBarOptions)+"\t\t\t\t\t\t\t\t";
+      reply += battle.enemy.name + ":\t\t";
+      reply += battle.enemy.hp + "/" + battle.enemy.maxHp + " HP " + percentageBar((battle.enemy.hp/battle.enemy.maxHp), 14, percentageBarOptions)+"\n\n";
+      reply += "0. attack \t\t\t\t\t\t 1. item \t\t\t\t\t\t 2. run";
+    } else {
+      if (msg.content === "battle 0") {
+        // goto attack menu
+        battle.status = 1;
+      } else if (msg.content === "battle 1") {
+        // goto item menu
+        battle.status = 2;
+      } else if (msg.content === "battle 2") {
+        // stop battle
+        reply = "you ran away";
+        battle.status = 999;
+      }
+      battleHandler(battle, msg);
+    }
+    msg.reply(reply);
+  }
+
+  function attack() {
+    var reply = "";
+    var actions = battle.player.getWeaponActions();
+    if (msg.content === "battle") {
+      reply += "what would you like to do?\n\n";
+      for (var i = 0; i < actions.length; i++) {
+        reply += i+". " + battle.player.equipedWeapon.name + " " + actions[i].name + ", " + Math.round(actions[i].attackPowerMultiplier*battle.player.attackPower) + " power\n";
+      }
+      reply += actions.length +". back";
+    } else {
+      for (var i = 0; i < actions.length; i++) {
+        if (msg.content === "battle "+i) {
+          
+        }
+      }
+    }
+    msg.reply(reply);
+  }
+  // statuscode 999 is escape code(remove from battles array and update player)
+  if (battle.status != 999) {
+    battles.push(battle);
+  } else {
+    setPlayer(battle.player);
+  }
+  console.log("amount of battles "+battles.length);
+}
 
 
 
@@ -361,4 +457,46 @@ function syncDB(callback) {
       }(guilds[i]));
     }
   });
+}
+
+// example
+// console.log(percentageBar(0.75, 14, {caps: "()"}));
+// percentage from 0 to 1 and width in character length, the options are {caps: "[]", full: "#", empty: "-"}
+function percentageBar(percentage, width, options) {
+  if (!options) {
+    options = {};
+  }
+  if (!options.caps) {
+    options.caps = "[]";
+  }
+  if (!options.full) {
+    options.full = "#";
+  }
+  if (!options.empty) {
+    options.empty = "-";
+  }
+  if (!width) {
+    width = 14;
+  }
+  var bar = options.caps.substring(0, 1);
+  var hashAmount = Math.round(width*percentage);
+  var dashAmount = width - hashAmount;
+  for (var i = 0; i < (hashAmount + dashAmount); i++) {
+    if (i < hashAmount) {
+      bar+= options.full;
+    } else {
+      bar+= options.empty;
+    }
+  }
+  bar += options.caps.substring(1, 2);
+  return bar
+}
+
+function startsWith(str, word) {
+  str = str.trim();
+  if (str.indexOf(word) === 0) {
+    return true
+  } else {
+    return false
+  }
 }

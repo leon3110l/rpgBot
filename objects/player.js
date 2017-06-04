@@ -11,7 +11,7 @@ function Player(id, name, xp, lvl, hp, defense, attackPower, maxHp, equipedArmor
     pants: null,
     harness: null,
     helmet: null,
-    gloves: null
+    glove: null
   };
   // beginners Weapon
   this.equipedWeapon = equipedWeapon || new Game.items.weapon[0].item(this.lvl);
@@ -35,10 +35,10 @@ Player.prototype = {
     // drop the item
     this.items.splice(this.items.indexOf(item), 1);
   },
-  // equips armor in a slot(boots(0), pants(1), harness(2), helmet(3) or gloves(4))
+  // equips armor in a slot(boots(0), pants(1), harness(2), helmet(3) or glove(4))
   equipArmor: function(armor) {
 
-    // equip armor, boots, pants, harness, helmet or gloves
+    // equip armor, boots, pants, harness, helmet or glove
     this.equipedArmor[armor.armorType] = armor;
     // remove armor from items array/inventory
     this.items.splice(this.items.indexOf(armor), 1);

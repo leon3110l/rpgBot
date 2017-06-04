@@ -6,7 +6,7 @@ function Armor(targetLvl, defense, exact) {
   this.maxLvl = 5;
   this.name = "unnamed";
   this.type = "armor";
-  this.armorType = "boots"; // boots, harness, helmet, gloves or pants
+  this.armorType = "boots"; // boots, harness, helmet, glove or pants
   if (exact) {
     this.lvl = targetLvl;
   } else {
@@ -28,7 +28,7 @@ function Shirt(targetLvl, defense, exact) {
   this.maxLvl = 10;
   this.name = "shirt";
   this.type = "armor";
-  this.armorType = "harness"; // boots, harness, helmet, gloves or pants
+  this.armorType = "harness"; // boots, harness, helmet, glove or pants
   if (exact) {
     this.lvl = targetLvl;
   } else {

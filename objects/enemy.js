@@ -16,12 +16,9 @@ function Enemy(name, targetLvl) {
     pants: this.getRandomArmor("pants"),
     harness: this.getRandomArmor("harness"),
     helmet: this.getRandomArmor("helmet"),
-    gloves: this.getRandomArmor("gloves")
+    glove: this.getRandomArmor("glove")
   };
-  this.equipedWeapons = {
-    left: this.getRandomWeapon("left"),
-    right: this.getRandomWeapon("right")
-  };
+  this.equipedWeapons = this.getRandomWeapon();
   this.maxDropItems = 5;
   // the items it is going to drop if the user wins
   this.items = this.getDropItems();
@@ -43,17 +40,12 @@ function Enemy(name, targetLvl) {
 }
 Enemy.prototype = Object.create(Player.prototype);
 
-// gets a random weapon, left(0) or right(1) in type
-Enemy.prototype.getRandomWeapon = function(type) {
-  if (type === 0) {
-    type = "left";
-  } else if (type === 1) {
-    type = "right";
-  }
-  if (Game.items.weapons[type].length === 0) {
+// gets a random weapon
+Enemy.prototype.getRandomWeapon = function() {
+  if (Game.items.weapon.length === 0) {
     return null
   }
-  var weapon = new Game.items.weapons[type][Math.floor(Math.random()*Game.items.weapons[type].length)].item(this.lvl);
+  var weapon = new Game.items.weapon[Math.floor(Math.random()*Game.items.weapon.length)].item(this.lvl);
   if (Math.random() >= 0.5) {
     return weapon
   } else {
@@ -76,7 +68,7 @@ Enemy.prototype.getRandomArmor = function(type) {
       type = "helmet";
       break;
     case 4:
-      type = "gloves";
+      type = "glove";
       break;
   }
   if (Game.items.armor[type].length === 0) {
@@ -131,27 +123,12 @@ Enemy.prototype.doMove = function(opponent) {
       }
     }
   } else { //else attack
-    var selectedWeapon = Math.round(Math.random());
-    var options = ["left", "right"];
     // check if there is a weapon
-    if (this.equipedWeapons[options[selectedWeapon]]) {
-      // get actions for that weapon
-      var actions = this.getActions(selectedWeapon);
+    if (this.equipedWeapon) {
+      // get actions for the weapon
+      var actions = this.getWeaponActions();
       // attack with a random action
-      this.attack(opponent, options[selectedWeapon], Math.floor(Math.random()*actions.length));
-    } else { // if not check if there is a weapon in the other hand
-      if (selectedWeapon === 0) {
-        selectedWeapon = 1;
-      } else {
-        selectedWeapon = 0;
-      }
-      // if there is attack with it
-      if (this.equipedWeapons[options[selectedWeapon]]) {
-        // get actions for that weapon
-        var actions = this.getActions(selectedWeapon);
-        // attack with a random action
-        this.attack(opponent, options[selectedWeapon], Math.floor(Math.random()*actions.length));
-      }
+      this.attack(opponent, Math.floor(Math.random()*actions.length));
     }
   }
 }
