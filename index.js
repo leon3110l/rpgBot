@@ -39,6 +39,7 @@ client.on('message', msg => {
     if (!battle) {
       // create a battle
       getPlayer(msg.author.id, player => {
+        // create new battle
         battle = {
           player: player,
           enemy: new Enemy(null, player.lvl),
@@ -77,13 +78,13 @@ function battleHandler(battle, msg) {
   }
 
   function start() {
-    var reply = "";
     if (msg.content === "battle") {
-      reply = "\n" + battle.player.name + ":\t\t";
+      var reply = "\n" + battle.player.name + ":\t\t";
       reply += battle.player.hp + "/" + battle.player.maxHp + " HP " + percentageBar((battle.player.hp/battle.player.maxHp), 14, percentageBarOptions)+"\t\t\t\t\t\t\t\t";
       reply += battle.enemy.name + ":\t\t";
       reply += battle.enemy.hp + "/" + battle.enemy.maxHp + " HP " + percentageBar((battle.enemy.hp/battle.enemy.maxHp), 14, percentageBarOptions)+"\n\n";
       reply += "0. attack \t\t\t\t\t\t 1. item \t\t\t\t\t\t 2. run";
+      msg.reply(reply);
     } else {
       if (msg.content === "battle 0") {
         // goto attack menu
@@ -93,31 +94,35 @@ function battleHandler(battle, msg) {
         battle.status = 2;
       } else if (msg.content === "battle 2") {
         // stop battle
-        reply = "you ran away";
+        msg.reply("you ran away");
         battle.status = 999;
       }
+      msg.content = "battle";
       battleHandler(battle, msg);
     }
-    msg.reply(reply);
   }
 
   function attack() {
-    var reply = "";
     var actions = battle.player.getWeaponActions();
     if (msg.content === "battle") {
-      reply += "what would you like to do?\n\n";
+      var reply = "what would you like to do?\n\n";
       for (var i = 0; i < actions.length; i++) {
         reply += i+". " + battle.player.equipedWeapon.name + " " + actions[i].name + ", " + Math.round(actions[i].attackPowerMultiplier*battle.player.attackPower) + " power\n";
       }
       reply += actions.length +". back";
+      msg.reply(reply);
     } else {
       for (var i = 0; i < actions.length; i++) {
         if (msg.content === "battle "+i) {
-          
+          // TODO: use that attack to attack the opponent
         }
       }
+      if (msg.content === "battle "+actions.length) {
+        battle.status = 0;
+      }
+      msg.content = "battle";
+      battleHandler(battle, msg);
     }
-    msg.reply(reply);
   }
   // statuscode 999 is escape code(remove from battles array and update player)
   if (battle.status != 999) {
@@ -125,7 +130,7 @@ function battleHandler(battle, msg) {
   } else {
     setPlayer(battle.player);
   }
-  console.log("amount of battles "+battles.length);
+  console.log("amount of battles: "+battles.length);
 }
 
 
