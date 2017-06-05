@@ -27,7 +27,9 @@ function Weapon(targetLvl, attackPower, exact) {
       // how many times you can use this in battle
       usage: 2,
       // how many times it has been used in battle
-      used: 0
+      used: 0,
+      // how accurate the attack is from 0 to 1
+      accuracy: 0.9
     }
   ];
 }
@@ -70,19 +72,22 @@ function Hand(targetLvl, attackPower, exact) {
       name: "punch",
       attackPowerMultiplier: 1,
       usage: 10,
-      used: 0
+      used: 0,
+      accuracy: 0.9
     },
     {
       name: "hook",
       attackPowerMultiplier: 1.1,
       usage: 5,
-      used: 0
+      used: 0,
+      accuracy: 0.8
     },
     {
       name: "upper cut",
       attackPowerMultiplier: 1.5,
       usage: 3,
-      used: 0
+      used: 0,
+      accuracy: 0.7
     }
   ];
 }
@@ -111,19 +116,22 @@ function Bat(targetLvl, attackPower, exact) {
       name: "swing",
       attackPowerMultiplier: 1.3,
       usage: 7,
-      used: 0
+      used: 0,
+      accuracy: 0.9
     },
     {
       name: "stab",
       attackPowerMultiplier: 0.8,
       usage: 10,
-      used: 0
+      used: 0,
+      accuracy: 0.9
     },
     {
       name: "slam",
       attackPowerMultiplier: 1.5,
       usage: 3,
-      used: 0
+      used: 0,
+      accuracy: 0.9
     }
   ];
 }
@@ -152,19 +160,22 @@ function HockeyStick(targetLvl, attackPower, exact) {
       name: "swing",
       attackPowerMultiplier: 1.2,
       usage: 7,
-      used: 0
+      used: 0,
+      accuracy: 0.9
     },
     {
       name: "stab",
       attackPowerMultiplier: 0.6,
       usage: 10,
-      used: 0
+      used: 0,
+      accuracy: 0.9
     },
     {
       name: "slam",
       attackPowerMultiplier: 1.3,
       usage: 3,
-      used: 0
+      used: 0,
+      accuracy: 0.9
     }
   ];
 }

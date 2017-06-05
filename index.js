@@ -46,7 +46,7 @@ client.on('message', msg => {
           startTime: new Date(),
           status: 0
         };
-        battles.push(battle);
+        battles.push(battle); // add the battle to the battles array
         msg.reply("battle started!");
         battleHandler(battle, msg);
       });
@@ -100,7 +100,9 @@ function battleHandler(battle, msg) {
         battle.status = 999;
       }
       msg.content = "battle"; // added to prevent a loop
-      battleHandler(battle, msg);
+      if (battle.status != 999) {
+        battleHandler(battle, msg);
+      }
     }
   }
   // the attack menu
@@ -116,7 +118,18 @@ function battleHandler(battle, msg) {
     } else {
       for (var i = 0; i < actions.length; i++) {
         if (msg.content === "battle "+i) {
-          // TODO: use that attack to attack the opponent
+          var opponentStats = battle.player.attack(battle.enemy, battle.player.equipedWeapon, i);
+          if (opponentStats.dmg === 0) {
+            msg.reply("you missed!");
+          } else {
+            msg.reply("you used " + actions[i].name + " with your " + battle.player.equipedWeapon.name + " and did " + opponentStats.dmg + " damage!");
+          }
+          if (opponentStats.hp === 0) {
+            msg.reply("you won!");
+            battle.status = 999; // exit the game
+          } else {
+            battle.status = 0; // go back to the first screen
+          }
         }
       }
       if (msg.content === "battle "+actions.length) {

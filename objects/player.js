@@ -24,13 +24,32 @@ function Player(id, name, xp, lvl, hp, defense, attackPower, maxHp, equipedArmor
   // hp from the player it self
   this.hp = hp || this.maxHp;
   // the defense points
-  this.defense = defense || 0;
+  this.defense = defense || 5;
   // the attack points
-  this.attackPower = attackPower || 0;
+  this.attackPower = attackPower || 5;
 }
 
 Player.prototype = {
   // TODO: attack function, eat function
+  eat: function(food) {
+    this.hp += food.hp;
+    this.dropItem(food); // after it's eaten remove from items/inventory
+  },
+  // attack an opponent with an item/weapon
+  attack: function(opponent, item, action) {
+    var power = (this.attackPower + item.attackPower) * item.actions[action].attackPowerMultiplier;
+    // if it doesn't miss
+    if (Math.random() < item.actions[action].accuracy) { // attack can miss
+      var wiggleRoom = Math.floor(Math.random()*power-power/2); // have some deviation
+      power += wiggleRoom; // add to the overall power of the attack
+      power = Math.abs(Math.round((Math.random()-0.75)*power));
+    } else {
+      power = 0;
+    }
+    console.log(power);
+    return opponent.dmg(power); //returns the amount of dmg the attack did and the new hp of the opponent
+  },
+  // drops an item, removes an item from the items array
   dropItem: function(item) {
     // drop the item
     this.items.splice(this.items.indexOf(item), 1);
@@ -54,7 +73,7 @@ Player.prototype = {
     // equip weapon
     this.equipedWeapon = weapon;
     // remove item from items/inventory
-    this.items.splice(this.items.indexOf(weapon), 1);
+    this.dropItem(weapon);
     // TODO: add to the attackPower of the player
   },
   // take damage, returns new hp from this player
@@ -63,7 +82,7 @@ Player.prototype = {
     if (this.hp < 0) {
       this.hp = 0;
     }
-    return this.hp // returns new hp of the player
+    return {hp: this.hp, dmg: dmg} // returns new hp of the player
     // TODO: account for defense points and attack points of the enemy/opponent
   },
   // returns the actions of the equiped weapon
@@ -85,6 +104,7 @@ Player.prototype = {
       this.lvl++;
       this.xp -= lvlThreshold;
       output.lvl = this.lvl;
+      // TODO: add hp and defense and attack, could let user decide
     }
     output.xp = this.xp;
     // return object with lvl if it lvled up and new xp
