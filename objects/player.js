@@ -37,17 +37,29 @@ Player.prototype = {
   },
   // attack an opponent with an item/weapon
   attack: function(opponent, item, action) {
-    var power = (this.attackPower + item.attackPower) * item.actions[action].attackPowerMultiplier;
+    var crit = false;
+    var miss = false;
+    var power = this.attackPower + item.attackPower * item.actions[action].attackPowerMultiplier;
     // if it doesn't miss
+    if (Math.random() < item.actions[action].critChance) {
+      power *= Math.random() + 1.25;
+      crit = true;
+    }
     if (Math.random() < item.actions[action].accuracy) { // attack can miss
-      var wiggleRoom = Math.floor(Math.random()*power-power/2); // have some deviation
+      var wiggleRoom = Math.floor(Math.random()*(power*0.1)-(power*0.1)/2); // have some deviation
       power += wiggleRoom; // add to the overall power of the attack
-      power = Math.abs(Math.round((Math.random()-0.75)*power));
+      console.log("power: " + power);
+      power = Math.round(((Math.random()*0.40)+0.75)*power);
+      console.log("power after formula: " + power);
     } else {
-      power = 0;
+      power = 0; // did not hit and did no dmg
+      miss = true;
     }
     console.log(power);
-    return opponent.dmg(power); //returns the amount of dmg the attack did and the new hp of the opponent
+    var output = opponent.dmg(power);
+    output.crit = crit;
+    output.miss = miss;
+    return output; //returns the amount of dmg the attack did and the new hp of the opponent
   },
   // drops an item, removes an item from the items array
   dropItem: function(item) {
@@ -78,12 +90,19 @@ Player.prototype = {
   },
   // take damage, returns new hp from this player
   dmg: function(dmg) {
+    var defense = this.defense;
+    for (var armor in this.equipedArmor) {
+      if (this.equipedArmor.hasOwnProperty(armor) && this.equipedArmor[armor] != null) {
+        defense += this.equipedArmor[armor].defense;
+      }
+    }
+    console.log("defense: " + defense);
+    dmg -= Math.round(defense * (0.025 * Math.random()+0.75));
     this.hp -= dmg;
     if (this.hp < 0) {
       this.hp = 0;
     }
     return {hp: this.hp, dmg: dmg} // returns new hp of the player
-    // TODO: account for defense points and attack points of the enemy/opponent
   },
   // returns the actions of the equiped weapon
   getWeaponActions: function() {

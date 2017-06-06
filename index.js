@@ -76,16 +76,19 @@ function battleHandler(battle, msg) {
     case 2: //item
       item();
       break;
+    case 3:
+      stats();
+      break;
     // 999 run/escape/stop
   }
   // the start menu
   function start() {
     if (msg.content === "battle") {
       var reply = "\n" + battle.player.name + ":\t\t";
-      reply += battle.player.hp + "/" + battle.player.maxHp + " HP " + percentageBar((battle.player.hp/battle.player.maxHp), 14, percentageBarOptions)+"\t\t\t\t\t\t\t\t";
+      reply += battle.player.hp + "/" + battle.player.maxHp + " HP " + percentageBar((battle.player.hp/battle.player.maxHp), 14, percentageBarOptions)+"\t\t\t\t\t\t";
       reply += battle.enemy.name + ":\t\t";
       reply += battle.enemy.hp + "/" + battle.enemy.maxHp + " HP " + percentageBar((battle.enemy.hp/battle.enemy.maxHp), 14, percentageBarOptions)+"\n\n";
-      reply += "0. attack \t\t\t\t\t\t 1. item \t\t\t\t\t\t 2. run";
+      reply += "0. attack \t\t\t\t\t\t 1. item \t\t\t\t\t\t 2. stats \t\t\t\t\t\t 3. run";
       msg.reply(reply);
     } else {
       if (msg.content === "battle 0") {
@@ -95,6 +98,8 @@ function battleHandler(battle, msg) {
         // goto item menu
         battle.status = 2;
       } else if (msg.content === "battle 2") {
+        battle.status = 3;
+      } else if (msg.content === "battle 3") {
         // stop battle
         msg.reply("you ran away");
         battle.status = 999;
@@ -111,17 +116,20 @@ function battleHandler(battle, msg) {
     if (msg.content === "battle") {
       var reply = "what would you like to do?\n\n";
       for (var i = 0; i < actions.length; i++) {
-        reply += i+". " + battle.player.equipedWeapon.name + " " + actions[i].name + ", " + Math.round(actions[i].attackPowerMultiplier*battle.player.attackPower) + " power\n";
+        reply += i+". " + battle.player.equipedWeapon.name + " " + actions[i].name + ", " + Math.round(actions[i].attackPowerMultiplier * battle.player.equipedWeapon.attackPower + battle.player.attackPower) + " power\n";
       }
       reply += actions.length +". back";
       msg.reply(reply);
     } else {
       for (var i = 0; i < actions.length; i++) {
-        if (msg.content === "battle "+i) {
+        if (msg.content === "battle "+i) { // some attack
           var opponentStats = battle.player.attack(battle.enemy, battle.player.equipedWeapon, i);
-          if (opponentStats.dmg === 0) {
+          if (opponentStats.miss) {
             msg.reply("you missed!");
           } else {
+            if (opponentStats.crit) {
+              msg.reply("it was a critical hit!");
+            }
             msg.reply("you used " + actions[i].name + " with your " + battle.player.equipedWeapon.name + " and did " + opponentStats.dmg + " damage!");
           }
           if (opponentStats.hp === 0) {
@@ -132,7 +140,7 @@ function battleHandler(battle, msg) {
           }
         }
       }
-      if (msg.content === "battle "+actions.length) {
+      if (msg.content === "battle "+actions.length) { // the back button
         battle.status = 0; // go back to the start
       }
       msg.content = "battle"; // added to prevent a loop
@@ -165,6 +173,18 @@ function battleHandler(battle, msg) {
       battleHandler(battle, msg);
     }
   }
+  // gets current stats from the battle
+  function stats() {
+    var reply = "stats\n";
+    var info = [];
+    info.push(["name", battle.player.name, battle.enemy.name]); // push names
+    info.push(["lvl", battle.player.lvl, battle.enemy.lvl]); // push lvl
+    reply += textGrid(info);
+    msg.reply(reply);
+    msg.content = "battle";
+    battle.status = 0;
+    battleHandler(battle, msg);
+  }
   battles.splice(battles.indexOf(battle), 1); // remove battle from battles array
   // statuscode 999 is escape code(remove from battles array and update player)
   if (battle.status != 999) {
@@ -176,6 +196,35 @@ function battleHandler(battle, msg) {
 
 
 
+// input array needs to be a two dimensional array
+function textGrid(array) {
+  var text = "";
+  // get biggest word for every row;
+  var wordlengths = {
+    col0: 0,
+    col1: 0,
+    col2: 0
+  };
+  // get lengths
+  for (var i = 0; i < array.length; i++) {
+    for (var j = 0; j < array[i].length; j++) {
+      if (array[i][j].length > wordlengths["col"+i]) {
+        wordlengths["col"+i] = array[i][j].length;
+      }
+    }
+  }
+  // generate text
+  for (var i = 0; i < array.length; i++) {
+    for (var j = 0; j < array[i].length; j++) {
+      text += array[i][j];
+      for (var k = 0; k < (wordlengths["col"+i] - array[i][j].length); k++) {
+        text += "\t";
+      }
+    }
+    text += "\n";
+  }
+  return text
+}
 
 
 

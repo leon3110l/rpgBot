@@ -31,6 +31,8 @@ function Enemy(name, targetLvl) {
   this.hp = this.maxHp;
   // totalHp of the enemy including armor and buffs... when I add buffs
   this.totalHp = this.hp;
+  // defense points
+  this.defense = Math.round((Math.random() + 5) * this.lvl);
   for (var armorPiece in this.equipedArmor) {
     // check if there is armor in the slot
     if (this.equipedArmor.hasOwnProperty(armorPiece) && this.equipedArmor[armorPiece]) {
