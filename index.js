@@ -3,6 +3,7 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 const tokens = require("./tokens");
 const prefix = tokens.prefix;
+const textGridOptions = require("./textGridOptions");
 const mysql = require("mysql");
 
 // game components
@@ -178,8 +179,8 @@ function battleHandler(battle, msg) {
     var reply = "stats\n";
     var info = [];
     info.push(["name", battle.player.name, battle.enemy.name]); // push names
-    info.push(["lvl", battle.player.lvl, battle.enemy.lvl]); // push lvl
-    reply += textGrid(info);
+    info.push(["lvl", battle.player.lvl.toString(), battle.enemy.lvl.toString()]); // push lvl
+    reply += textGrid(info, textGridOptions);
     msg.reply(reply);
     msg.content = "battle";
     battle.status = 0;
@@ -197,28 +198,39 @@ function battleHandler(battle, msg) {
 
 
 // input array needs to be a two dimensional array
-function textGrid(array) {
+// discord font is not monospaced
+// in the options put every character with a different width to accomadate for non monospaced fonts
+// options should look like this {m: -1, l: 1} difference from normal width, the more width the more you need to subtract and vise versa
+function textGrid(array, options) {
   var text = "";
   // get biggest word for every row;
-  var wordlengths = {
-    col0: 0,
-    col1: 0,
-    col2: 0
-  };
+  var wordlengths = {};
   // get lengths
   for (var i = 0; i < array.length; i++) {
     for (var j = 0; j < array[i].length; j++) {
-      if (array[i][j].length > wordlengths["col"+i]) {
-        wordlengths["col"+i] = array[i][j].length;
+      var length = 0;
+      for (var char in options) {
+        if (options.hasOwnProperty(char)) {
+          var offset = 0;
+          while (array[i][j].indexOf(char, offset) != -1) {
+            length += options[char];
+            offset = array[i][j].indexOf(char, offset)+1;
+          }
+        }
+      }
+      length += array[i][j].length;
+      if (length > wordlengths["col"+j] || !wordlengths["col"+j]) {
+        wordlengths["col"+j] = length;
       }
     }
   }
+  console.log(wordlengths);
   // generate text
   for (var i = 0; i < array.length; i++) {
     for (var j = 0; j < array[i].length; j++) {
-      text += array[i][j];
-      for (var k = 0; k < (wordlengths["col"+i] - array[i][j].length); k++) {
-        text += "\t";
+      text += array[i][j] + " ";
+      for (var k = 0; k < (wordlengths["col"+j] - array[i][j].length); k++) {
+        text += " ";
       }
     }
     text += "\n";
