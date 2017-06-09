@@ -3,7 +3,6 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 const tokens = require("./tokens");
 const prefix = tokens.prefix;
-const textGridOptions = require("./textGridOptions");
 const mysql = require("mysql");
 
 // game components
