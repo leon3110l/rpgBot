@@ -175,12 +175,48 @@ function battleHandler(battle, msg) {
   }
   // gets current stats from the battle
   function stats() {
+    var player = battle.player;
+    var enemy = battle.enemy;
     var reply = "stats\n";
     var info = [];
-    info.push(["name", battle.player.name, battle.enemy.name]); // push names
-    info.push(["lvl", battle.player.lvl.toString(), battle.enemy.lvl.toString()]); // push lvl
+    if (!battle.enemy.equipedWeapon) {
+      var enemyWeapon = "nothing";
+      var enemyWeaponAP = 0;
+    } else {
+      var enemyWeapon = battle.enemy.equipedWeapon.name;
+      var enemyWeaponAP = battle.enemy.equipedWeapon.attackPower;
+    }
+    if (!battle.player.equipedWeapon) {
+      var playerWeapon = "nothing";
+      var playerWeaponAP = 0;
+    } else {
+      var playerWeapon = battle.player.equipedWeapon.name;
+      var playerWeaponAP = battle.player.equipedWeapon.attackPower;
+    }
+    var totalDEFplayer = player.defense;
+    for (var armor in player.equipedArmor) {
+      if (player.equipedArmor.hasOwnProperty(armor) && player.equipedArmor[armor]) {
+        totalDEFplayer += player.equipedArmor[armor].defense;
+      }
+    }
+    var totalDEFenemy = enemy.defense;
+    for (var armor in enemy.equipedArmor) {
+      if (enemy.equipedArmor.hasOwnProperty(armor) && enemy.equipedArmor[armor]) {
+        totalDEFenemy += enemy.equipedArmor[armor].defense;
+      }
+    }
+    // add all the rows to the array
+    info.push(["name", player.name, enemy.name]); // push names
+    info.push(["lvl", player.lvl.toString(), enemy.lvl.toString()]); // push lvl
+    info.push(["DEF", player.defense.toString(), enemy.defense.toString()]); // defense
+    info.push(["AP", player.attackPower.toString(), enemy.attackPower.toString()+"\n"]); // attack power
+    info.push(["weapon", playerWeapon, enemyWeapon]); // weapon name
+    info.push(["weapon AP", playerWeaponAP.toString(), enemyWeaponAP.toString()+"\n"]); // weapon attackPower
+    info.push(["total AP", (player.attackPower + playerWeaponAP).toString(), (enemy.attackPower + enemyWeaponAP).toString()]); // total AP the person has
+    info.push(["total DEF", totalDEFplayer.toString(), totalDEFenemy.toString()]); // total defense points
+    
     reply += textGrid(info);
-    msg.reply("```"+reply+"```");
+    msg.reply("```"+reply+"```"); // add it to a code block to get the monospaced font
     msg.content = "battle";
     battle.status = 0;
     battleHandler(battle, msg);

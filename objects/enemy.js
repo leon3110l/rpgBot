@@ -18,7 +18,7 @@ function Enemy(name, targetLvl) {
     helmet: this.getRandomArmor("helmet"),
     glove: this.getRandomArmor("glove")
   };
-  this.equipedWeapons = this.getRandomWeapon();
+  this.equipedWeapon = this.getRandomWeapon();
   this.maxDropItems = 5;
   // the items it is going to drop if the user wins
   this.items = this.getDropItems();
@@ -33,6 +33,8 @@ function Enemy(name, targetLvl) {
   this.totalHp = this.hp;
   // defense points
   this.defense = Math.round((Math.random() + 5) * this.lvl);
+  // attackPower
+  this.attackPower = Math.round((Math.random() + 10) * this.lvl);
   for (var armorPiece in this.equipedArmor) {
     // check if there is armor in the slot
     if (this.equipedArmor.hasOwnProperty(armorPiece) && this.equipedArmor[armorPiece]) {
