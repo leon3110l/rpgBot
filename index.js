@@ -134,6 +134,14 @@ function battleHandler(battle, msg) {
           }
           if (opponentStats.hp === 0) {
             msg.reply("you won!");
+            for (var j = 0; j < battle.enemy.dropItems.length; j++) {
+              if (battle.player.addItem(battle.enemy.dropItems[j])) {
+                msg.reply("you got a " + battle.enemy.dropItems[j].name);
+              } else {
+                // TODO: make something that askes what item to drop
+              }
+            }
+            battle.player.addXp(battle.enemy);
             battle.status = 999; // exit the game
           } else {
             battle.status = 0; // go back to the first screen
@@ -214,7 +222,7 @@ function battleHandler(battle, msg) {
     info.push(["weapon AP", playerWeaponAP.toString(), enemyWeaponAP.toString()+"\n"]); // weapon attackPower
     info.push(["total AP", (player.attackPower + playerWeaponAP).toString(), (enemy.attackPower + enemyWeaponAP).toString()]); // total AP the person has
     info.push(["total DEF", totalDEFplayer.toString(), totalDEFenemy.toString()]); // total defense points
-    
+
     reply += textGrid(info);
     msg.reply("```"+reply+"```"); // add it to a code block to get the monospaced font
     msg.content = "battle";

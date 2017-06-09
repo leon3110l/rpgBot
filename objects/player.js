@@ -48,15 +48,16 @@ Player.prototype = {
     if (Math.random() < item.actions[action].accuracy) { // attack can miss
       var wiggleRoom = Math.floor(Math.random()*(power*0.1)-(power*0.1)/2); // have some deviation
       power += wiggleRoom; // add to the overall power of the attack
-      console.log("power: " + power);
       power = Math.round(((Math.random()*0.40)+0.75)*power);
-      console.log("power after formula: " + power);
     } else {
       power = 0; // did not hit and did no dmg
       miss = true;
     }
-    console.log(power);
-    var output = opponent.dmg(power);
+    if (!miss) {
+      var output = opponent.dmg(power);
+    } else {
+      var output = {hp: opponent.hp, dmg: 0};
+    }
     output.crit = crit;
     output.miss = miss;
     return output; //returns the amount of dmg the attack did and the new hp of the opponent
@@ -96,7 +97,6 @@ Player.prototype = {
         defense += this.equipedArmor[armor].defense;
       }
     }
-    console.log("defense: " + defense);
     dmg -= Math.round(defense * (0.025 * Math.random()+0.75));
     this.hp -= dmg;
     if (this.hp < 0) {
@@ -113,8 +113,8 @@ Player.prototype = {
   addXp: function(enemy) {
     var output = {};
     var lvlThreshold = Math.floor((Math.pow((this.lvl * 2), 2)  + 100) * 2);
-    if (typeof enemy == Object) {
-      this.xp += Math.round(Math.max((enemy.lvl - this.lvl), 1)*(Math.random()*10+1));
+    if (typeof enemy == "object") {
+      this.xp += Math.round(Math.max((enemy.lvl - this.lvl), 1)*(Math.random()*25+1));
     } else { //xp amount
       this.xp += enemy;
     }
