@@ -180,7 +180,7 @@ function battleHandler(battle, msg) {
     info.push(["name", battle.player.name, battle.enemy.name]); // push names
     info.push(["lvl", battle.player.lvl.toString(), battle.enemy.lvl.toString()]); // push lvl
     reply += textGrid(info, textGridOptions);
-    msg.reply(reply);
+    msg.reply("```"+reply+"```");
     msg.content = "battle";
     battle.status = 0;
     battleHandler(battle, msg);
@@ -223,7 +223,6 @@ function textGrid(array, options) {
       }
     }
   }
-  console.log(wordlengths);
   // generate text
   for (var i = 0; i < array.length; i++) {
     for (var j = 0; j < array[i].length; j++) {
