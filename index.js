@@ -200,6 +200,7 @@ function battleHandler(battle, msg) {
 // discord font is not monospaced
 // in the options put every character with a different width to accomadate for non monospaced fonts
 // options should look like this {m: -1, l: 1} difference from normal width, the more width the more you need to subtract and vise versa
+// options is unneeded, because code block uses a monospaced font
 function textGrid(array, options) {
   var text = "";
   // get biggest word for every row;
