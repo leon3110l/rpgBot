@@ -179,7 +179,7 @@ function battleHandler(battle, msg) {
     var info = [];
     info.push(["name", battle.player.name, battle.enemy.name]); // push names
     info.push(["lvl", battle.player.lvl.toString(), battle.enemy.lvl.toString()]); // push lvl
-    reply += textGrid(info, textGridOptions);
+    reply += textGrid(info);
     msg.reply("```"+reply+"```");
     msg.content = "battle";
     battle.status = 0;
