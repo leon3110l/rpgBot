@@ -1,8 +1,8 @@
 {
-  "discord": "DISCORD_TOKEN",
-  "DBhost": "localhost",
-  "DBusername": "rpgBot",
-  "DBpassword": "rpgBot",
+  "discord": "2f9b3178f8ae57c660b2a95aa99de70bd3011385f4d285d2a72e3ad82dfe83c2",
+  "DBhost": "ubuntu",
+  "DBusername": "",
+  "DBpassword": "",
   "DBname": "rpgBot",
   "prefix": "$"
 }
