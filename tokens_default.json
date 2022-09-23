@@ -3,6 +3,6 @@
   "DBhost": "ubuntu",
   "DBusername": "",
   "DBpassword": "",
-  "DBname": "rpgBot",
-  "prefix": "$"
+  "DBname": "",
+  "prefix": "!"
 }
